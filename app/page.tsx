@@ -1,4 +1,6 @@
 "use client";
+import DeleteModal from "@/components/DeleteModal";
+import UpdateModal from "@/components/UpdateModal";
 import Image from "next/image";
 import { useState } from "react";
 
@@ -18,6 +20,11 @@ const countries = [
 export default function Home() {
   const [showMenu, setshowMenu] = useState<boolean>(false);
   const [countryList, setCountryList] = useState<String[]>([]);
+  const [visibleDeleteModal, setvisibleDeleteModal] = useState<boolean>(false);
+  const [visibleUpdateModal, setvisibleUpdateModal] = useState<boolean>(false);
+  const [nameToDelete, setnameToDelete] = useState<String>("");
+  const [nameToUpdate, setnameToUpdate] = useState<String>("");
+  const [indexToUpdate, setindexToUpdate] = useState<Number>(0);
 
   const handleClick = () => {
     setshowMenu((prev) => !prev);
@@ -32,25 +39,9 @@ export default function Home() {
     }
   };
 
-  const handleDelete = (name: String) => {
-    const newList = countryList.filter((value) => {
-      return value != name;
-    });
-    setCountryList([...newList]);
-  };
-
-  const handleUpdate = (name: String, index: Number) => {
-    const editedCountry = prompt("Enter the edited country name:");
-    if (editedCountry !== null && editedCountry !== "") {
-      const newList = [...countryList];
-      newList[index] = editedCountry;
-      setCountryList(newList);
-    }
-  };
-
   return (
-    <div className=" m-5 md:container flex justify-center flex-col gap-10 relative items-center ">
-      <div>
+    <div className="w-full h-screen flex justify-center flex-col gap-10 relative items-center bg-[url('/background.jpg')] bg-cover">
+      <div >
         <button
           className=" text-white bg-blue-700 hover:bg-blue-800  font-medium rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center "
           type="button"
@@ -84,8 +75,8 @@ export default function Home() {
             className="py-2 text-sm text-gray-700 dark:text-gray-200"
             aria-labelledby="dropdownDefaultButton"
           >
-            {countries.map((value) => (
-              <li>
+            {countries.map((value, index) => (
+              <li key={index}>
                 <p
                   className="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white cursor-pointer"
                   onClick={handleCountryClick}
@@ -126,7 +117,10 @@ export default function Home() {
                     </th>
                     <td
                       className="px-6 py-4 cursor-pointer"
-                      onClick={() => handleDelete(value)}
+                      onClick={() => {
+                        setvisibleDeleteModal(true);
+                        setnameToDelete(value);
+                      }}
                     >
                       <Image
                         src={"/delete.png"}
@@ -137,7 +131,13 @@ export default function Home() {
                     </td>
                     <td
                       className="px-6 py-4 cursor-pointer"
-                      onClick={() => handleUpdate(value, index)}
+                      onClick={() => {
+                        setvisibleUpdateModal(true);
+                        setnameToUpdate(value);
+                        console.log(index , 'before');
+                        setindexToUpdate(index)
+                        console.log(index , 'after');
+                      }}
                     >
                       <Image
                         src={"/updated.png"}
@@ -155,6 +155,21 @@ export default function Home() {
           )}
         </div>
       </div>
+      <DeleteModal
+        visibleDeleteModal={visibleDeleteModal}
+        setvisibleDeleteModal={setvisibleDeleteModal}
+        name={nameToDelete}
+        countryList={countryList}
+        setCountryList={setCountryList}
+      />
+      <UpdateModal
+        visibleUpdateModal={visibleUpdateModal}
+        setvisibleUpdateModal={setvisibleUpdateModal}
+        name={nameToUpdate}
+        index={indexToUpdate}
+        countryList={countryList}
+        setCountryList={setCountryList}
+      />
     </div>
   );
 }
